@@ -1,6 +1,8 @@
+Here’s a more concise version of your **Ollama + Mistral README**:
+
 ---
 
-# 🧠 Run LLMs Locally with Ollama + Models( Mistral, gemma, deepseek, qwen)
+# 🧠 Run LLMs Locally with Ollama + Models (Mistral, gemma, qwen, llama, phi and More)
 
 **Ollama** is a platform for running large language models (LLMs) locally, similar to **JDK** for Java or **Docker** for containers. It allows you to download and run models like **Mistral** directly on your machine, providing full control and privacy.
 
