@@ -1,0 +1,62 @@
+import json
+import asyncio
+from dotenv import load_dotenv
+from typing import List
+from pydantic import BaseModel
+from langchain_ollama import ChatOllama
+from browser_use import Agent, Browser, BrowserConfig, Controller
+
+# Load environment variables (in case needed in future)
+load_dotenv()
+
+# Use local LLM via Ollama
+llm = ChatOllama(model="qwen2.5")
+
+# Define Pydantic models for output
+class LinkedinPost(BaseModel):
+    title: str
+    url: str
+
+class LinkedinPosts(BaseModel):
+    posts: List[LinkedinPost]
+
+# Set up the controller for output validation
+controller = Controller(output_model=LinkedinPosts)
+
+# Set up browser configuration
+browser = Browser(
+    config=BrowserConfig(
+        chrome_instance_path=r'C:\Program Files\Google\Chrome\Application\chrome.exe'
+        # Make sure this path points to your actual Chrome executable
+    )
+)
+
+# Define initial browser action
+initial_actions = [
+    {"open_tab": {"url": "https://www.google.com"}}
+]
+
+# Async main function
+async def main():
+    agent = Agent(
+        task="your goal is to open aws account login page",
+        llm=llm,
+        initial_actions=initial_actions,
+        controller=controller,
+        browser=browser,
+        use_vision=False,
+        save_conversation_path="logs/conversation.json"
+        # planner_llm removed to avoid OpenAI dependency
+    )
+
+    history = await agent.run()
+    result = history.final_result()
+
+    if result:
+        parsed = LinkedinPosts.model_validate_json(result)
+        with open("linkedin_posts.json", "w") as f:
+            json.dump(parsed.model_dump(), f, indent=2)
+
+# Run the script
+if __name__ == "__main__":
+    asyncio.run(main())
